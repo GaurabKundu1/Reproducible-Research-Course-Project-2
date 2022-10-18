@@ -140,3 +140,41 @@ Eco_Impact <- Eco_Impact[1:10, ]
 head(Eco_Impact, 10)
 ```
 
+# Results
+
+## Question 1: Across the United States, which types of events (as indicated in the EVTYPE variable) are most harmful with respect to population health?
+
+## Answer
+
+We generate histogram to find the top 10 weather events that are most harmful to US population.
+
+```{r}
+Health_Consequences <- melt(Health_Impact, id.vars = "EVTYPE", variable.name = "Fatalities_or_Injuries")
+
+ggplot(Health_Consequences, aes(x = reorder(EVTYPE, -value), y = value)) + 
+  geom_bar(stat = "identity", aes(fill = Fatalities_or_Injuries), position = "dodge") + 
+  ylab("Total Injuries/Fatalities") + 
+  xlab("Event Type") + 
+  theme(axis.text.x = element_text(angle=45, hjust=1)) + 
+  ggtitle("Top 10 US Weather Events that are Most Harmful to Population") + 
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+## Question 2: Events that have the greatest economic consequences
+
+## Answer
+
+We generate histogram to find the top 10 weather events that have largest cost to US economy.
+
+```{r}
+Eco_Consequences <- melt(Eco_Impact, id.vars = "EVTYPE", variable.name = "Damage_Type")
+
+ggplot(Eco_Consequences, aes(x = reorder(EVTYPE, -value), y = value/1e9)) + 
+  geom_bar(stat = "identity", aes(fill = Damage_Type), position = "dodge") + 
+  ylab("Cost/Damage (in billion USD)") + 
+  xlab("Event Type") + 
+  theme(axis.text.x = element_text(angle=45, hjust=1)) + 
+  ggtitle("Top 10 US Weather Events that have the Greatest Economic consequences") + 
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
