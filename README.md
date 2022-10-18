@@ -1,5 +1,5 @@
 # Reproducible-Research-Course-Project-2
-# Analysis of U.S. Storm Event Data and the Impact on Public Health and the Economy
+# Analysis of U.S. Storm Event Data and it's Impact on Public Health and the Economy
 
 **Gaurab Kundu**
 
