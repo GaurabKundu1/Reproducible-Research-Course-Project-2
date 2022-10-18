@@ -520,6 +520,57 @@ and Crop Damage.</p>
 <pre class="r"><code>data &lt;- data[, .(EVTYPE, FATALITIES, INJURIES, PROPDMG, PROPDMGEXP, PROPCOST = PROPDMG * PROPDMGEXP, CROPDMG, CROPDMGEXP, CROPCOST = CROPDMG * CROPDMGEXP)]</code></pre>
 </div>
 </div>
+<div id="analysis" class="section level1">
+<h1>Analysis</h1>
+<div id="estimating-the-total-of-fatalities-and-injuries-health-impacts" class="section level2">
+<h2>Estimating the total of Fatalities and Injuries (Health
+Impacts)</h2>
+<p>In order to know the health impact, we estimate the total of
+Fatalities and Injuries for each event.</p>
+<pre class="r"><code>Health_Impact &lt;- data[, .(FATALITIES = sum(FATALITIES), INJURIES = sum(INJURIES), TOTAL_HEALTH_IMPACTS = sum(FATALITIES) + sum(INJURIES)), by = .(EVTYPE)]
+
+Health_Impact &lt;- Health_Impact[order(-TOTAL_HEALTH_IMPACTS), ]
+
+Health_Impact &lt;- Health_Impact[1:10, ]
+
+head(Health_Impact, 10)</code></pre>
+<pre><code>##                EVTYPE FATALITIES INJURIES TOTAL_HEALTH_IMPACTS
+##  1:           TORNADO       5633    91346                96979
+##  2:    EXCESSIVE HEAT       1903     6525                 8428
+##  3:         TSTM WIND        504     6957                 7461
+##  4:             FLOOD        470     6789                 7259
+##  5:         LIGHTNING        816     5230                 6046
+##  6:              HEAT        937     2100                 3037
+##  7:       FLASH FLOOD        978     1777                 2755
+##  8:         ICE STORM         89     1975                 2064
+##  9: THUNDERSTORM WIND        133     1488                 1621
+## 10:      WINTER STORM        206     1321                 1527</code></pre>
+</div>
+<div id="estimating-the-total-of-property-cost-and-crop-cost-economic-impacts" class="section level2">
+<h2>Estimating the total of Property Cost and Crop Cost (Economic
+Impacts)</h2>
+<p>In order to know the economic impact, we estimate the total of
+Property Cost and Crop Cost for each event.</p>
+<pre class="r"><code>Eco_Impact &lt;- data[, .(PROPCOST = sum(PROPCOST), CROPCOST = sum(CROPCOST), TOTAL_ECO_IMPACTS = sum(PROPCOST) + sum(CROPCOST)), by = .(EVTYPE)]
+
+Eco_Impact &lt;- Eco_Impact[order(-TOTAL_ECO_IMPACTS), ]
+
+Eco_Impact &lt;- Eco_Impact[1:10, ]
+
+head(Eco_Impact, 10)</code></pre>
+<pre><code>##                EVTYPE     PROPCOST    CROPCOST TOTAL_ECO_IMPACTS
+##  1:             FLOOD 144657709807  5661968450      150319678257
+##  2: HURRICANE/TYPHOON  69305840000  2607872800       71913712800
+##  3:           TORNADO  56947380677   414953270       57362333947
+##  4:       STORM SURGE  43323536000        5000       43323541000
+##  5:              HAIL  15735267513  3025954473       18761221986
+##  6:       FLASH FLOOD  16822673979  1421317100       18243991079
+##  7:           DROUGHT   1046106000 13972566000       15018672000
+##  8:         HURRICANE  11868319010  2741910000       14610229010
+##  9:       RIVER FLOOD   5118945500  5029459000       10148404500
+## 10:         ICE STORM   3944927860  5022113500        8967041360</code></pre>
+</div>
+</div>
 
 
 

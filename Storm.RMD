@@ -110,3 +110,33 @@ Combining the coefficient (mantissa) and exponent part of Property and Crop Dama
 data <- data[, .(EVTYPE, FATALITIES, INJURIES, PROPDMG, PROPDMGEXP, PROPCOST = PROPDMG * PROPDMGEXP, CROPDMG, CROPDMGEXP, CROPCOST = CROPDMG * CROPDMGEXP)]
 ```
 
+# Analysis
+
+## Estimating the total of Fatalities and Injuries (Health Impacts)
+
+In order to know the health impact, we estimate the total of Fatalities and Injuries for each event.
+
+```{r}
+Health_Impact <- data[, .(FATALITIES = sum(FATALITIES), INJURIES = sum(INJURIES), TOTAL_HEALTH_IMPACTS = sum(FATALITIES) + sum(INJURIES)), by = .(EVTYPE)]
+
+Health_Impact <- Health_Impact[order(-TOTAL_HEALTH_IMPACTS), ]
+
+Health_Impact <- Health_Impact[1:10, ]
+
+head(Health_Impact, 10)
+```
+
+## Estimating the total of Property Cost and Crop Cost (Economic Impacts)
+
+In order to know the economic impact, we estimate the total of Property Cost and Crop Cost for each event.
+
+```{r}
+Eco_Impact <- data[, .(PROPCOST = sum(PROPCOST), CROPCOST = sum(CROPCOST), TOTAL_ECO_IMPACTS = sum(PROPCOST) + sum(CROPCOST)), by = .(EVTYPE)]
+
+Eco_Impact <- Eco_Impact[order(-TOTAL_ECO_IMPACTS), ]
+
+Eco_Impact <- Eco_Impact[1:10, ]
+
+head(Eco_Impact, 10)
+```
+
