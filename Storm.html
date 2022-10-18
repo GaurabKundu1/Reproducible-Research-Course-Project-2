@@ -422,6 +422,104 @@ economic consequences?</li>
 </ol>
 </div>
 </div>
+<div id="data-processing" class="section level1">
+<h1>Data Processing</h1>
+<div id="loading-required-libraries" class="section level2">
+<h2>Loading required libraries</h2>
+<pre class="r"><code>library(data.table)
+library(ggplot2)</code></pre>
+</div>
+<div id="loading-the-data-into-r" class="section level2">
+<h2>Loading the Data into R</h2>
+<pre class="r"><code>data &lt;- read.csv(&quot;repdata_data_StormData.csv.bz2&quot;, header = TRUE, sep=&quot;,&quot;)</code></pre>
+</div>
+<div id="inspecting-the-data" class="section level2">
+<h2>Inspecting the Data</h2>
+<pre class="r"><code>colnames(data) #checking column names</code></pre>
+<pre><code>##  [1] &quot;STATE__&quot;    &quot;BGN_DATE&quot;   &quot;BGN_TIME&quot;   &quot;TIME_ZONE&quot;  &quot;COUNTY&quot;    
+##  [6] &quot;COUNTYNAME&quot; &quot;STATE&quot;      &quot;EVTYPE&quot;     &quot;BGN_RANGE&quot;  &quot;BGN_AZI&quot;   
+## [11] &quot;BGN_LOCATI&quot; &quot;END_DATE&quot;   &quot;END_TIME&quot;   &quot;COUNTY_END&quot; &quot;COUNTYENDN&quot;
+## [16] &quot;END_RANGE&quot;  &quot;END_AZI&quot;    &quot;END_LOCATI&quot; &quot;LENGTH&quot;     &quot;WIDTH&quot;     
+## [21] &quot;F&quot;          &quot;MAG&quot;        &quot;FATALITIES&quot; &quot;INJURIES&quot;   &quot;PROPDMG&quot;   
+## [26] &quot;PROPDMGEXP&quot; &quot;CROPDMG&quot;    &quot;CROPDMGEXP&quot; &quot;WFO&quot;        &quot;STATEOFFIC&quot;
+## [31] &quot;ZONENAMES&quot;  &quot;LATITUDE&quot;   &quot;LONGITUDE&quot;  &quot;LATITUDE_E&quot; &quot;LONGITUDE_&quot;
+## [36] &quot;REMARKS&quot;    &quot;REFNUM&quot;</code></pre>
+</div>
+<div id="subsetting-the-data" class="section level2">
+<h2>Subsetting the Data</h2>
+<p>We are only interested in the column related to health and economic
+impacts. Therefore, only the following columns are needed and we can
+remove the rest.</p>
+<div id="evtype" class="section level3">
+<h3>EVTYPE</h3>
+</div>
+<div id="fatalities" class="section level3">
+<h3>FATALITIES</h3>
+</div>
+<div id="injuries" class="section level3">
+<h3>INJURIES</h3>
+</div>
+<div id="propdmg" class="section level3">
+<h3>PROPDMG</h3>
+</div>
+<div id="propdmgexp" class="section level3">
+<h3>PROPDMGEXP</h3>
+</div>
+<div id="cropdmg" class="section level3">
+<h3>CROPDMG</h3>
+</div>
+<div id="cropdmgexp" class="section level3">
+<h3>CROPDMGEXP</h3>
+<pre class="r"><code>selection &lt;- c(&#39;EVTYPE&#39;, &#39;FATALITIES&#39;, &#39;INJURIES&#39;, &#39;PROPDMG&#39;, &#39;PROPDMGEXP&#39;, &#39;CROPDMG&#39;, &#39;CROPDMGEXP&#39;)
+data &lt;- data[, selection]
+summary(data)</code></pre>
+<pre><code>##     EVTYPE            FATALITIES          INJURIES            PROPDMG       
+##  Length:902297      Min.   :  0.0000   Min.   :   0.0000   Min.   :   0.00  
+##  Class :character   1st Qu.:  0.0000   1st Qu.:   0.0000   1st Qu.:   0.00  
+##  Mode  :character   Median :  0.0000   Median :   0.0000   Median :   0.00  
+##                     Mean   :  0.0168   Mean   :   0.1557   Mean   :  12.06  
+##                     3rd Qu.:  0.0000   3rd Qu.:   0.0000   3rd Qu.:   0.50  
+##                     Max.   :583.0000   Max.   :1700.0000   Max.   :5000.00  
+##   PROPDMGEXP           CROPDMG         CROPDMGEXP       
+##  Length:902297      Min.   :  0.000   Length:902297     
+##  Class :character   1st Qu.:  0.000   Class :character  
+##  Mode  :character   Median :  0.000   Mode  :character  
+##                     Mean   :  1.527                     
+##                     3rd Qu.:  0.000                     
+##                     Max.   :990.000</code></pre>
+<p>We also only need to use the data where fatalities, injuries, or
+damages occured.</p>
+<pre class="r"><code>data &lt;- as.data.table(data)
+data &lt;- data[(EVTYPE != &quot;?&quot; &amp; (INJURIES &gt; 0 | FATALITIES &gt; 0 | PROPDMG &gt; 0 | CROPDMG &gt; 0)), 
+             c(&quot;EVTYPE&quot;, &quot;FATALITIES&quot;, &quot;INJURIES&quot;, &quot;PROPDMG&quot;, &quot;PROPDMGEXP&quot;, &quot;CROPDMG&quot;, &quot;CROPDMGEXP&quot;)]</code></pre>
+</div>
+</div>
+<div id="converting-the-exponent-columns-propdmgexp-and-cropdmgexp" class="section level2">
+<h2>Converting the exponent columns (PROPDMGEXP and CROPDMGEXP)</h2>
+<p>We need to convert the exponent values from K, M, B to 1000, 1000000,
+and 1000000000.</p>
+<pre class="r"><code>cols &lt;- c(&quot;PROPDMGEXP&quot;, &quot;CROPDMGEXP&quot;)
+data[,  (cols) := c(lapply(.SD, toupper)), .SDcols = cols]
+
+PROPDMGKey &lt;-  c(&quot;\&quot;\&quot;&quot; = 10^0, 
+                 &quot;-&quot; = 10^0, &quot;+&quot; = 10^0, &quot;0&quot; = 10^0, &quot;1&quot; = 10^1, &quot;2&quot; = 10^2, &quot;3&quot; = 10^3,
+                 &quot;4&quot; = 10^4, &quot;5&quot; = 10^5, &quot;6&quot; = 10^6, &quot;7&quot; = 10^7, &quot;8&quot; = 10^8, &quot;9&quot; = 10^9, 
+                 &quot;H&quot; = 10^2, &quot;K&quot; = 10^3, &quot;M&quot; = 10^6, &quot;B&quot; = 10^9)
+CROPDMGKey &lt;-  c(&quot;\&quot;\&quot;&quot; = 10^0, &quot;?&quot; = 10^0, &quot;0&quot; = 10^0, &quot;K&quot; = 10^3, &quot;M&quot; = 10^6, &quot;B&quot; = 10^9)
+
+data[, PROPDMGEXP := PROPDMGKey[as.character(data[,PROPDMGEXP])]]
+data[is.na(PROPDMGEXP), PROPDMGEXP := 10^0 ]
+
+data[, CROPDMGEXP := CROPDMGKey[as.character(data[,CROPDMGEXP])] ]
+data[is.na(CROPDMGEXP), CROPDMGEXP := 10^0 ]</code></pre>
+</div>
+<div id="creating-two-new-columns-of-property-cost-and-crop-cost" class="section level2">
+<h2>Creating two new columns of Property Cost and Crop Cost</h2>
+<p>Combining the coefficient (mantissa) and exponent part of Property
+and Crop Damage.</p>
+<pre class="r"><code>data &lt;- data[, .(EVTYPE, FATALITIES, INJURIES, PROPDMG, PROPDMGEXP, PROPCOST = PROPDMG * PROPDMGEXP, CROPDMG, CROPDMGEXP, CROPCOST = CROPDMG * CROPDMGEXP)]</code></pre>
+</div>
+</div>
 
 
 
