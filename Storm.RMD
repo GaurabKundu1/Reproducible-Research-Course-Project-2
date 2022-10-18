@@ -1,0 +1,12 @@
+---
+title: Analysis of U.S. Storm Event Data and it's Impact on Public Health and the
+  Economy
+author: "Gaurab Kundu"
+date: "2022-10-19"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
